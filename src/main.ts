@@ -1,12 +1,15 @@
-let game_container = document.getElementById("game-container");
-let game_board = document.getElementById("game-board");
-let ball = document.getElementById("ball");
-let paddle_left = document.getElementById("paddle_left");
-let paddle_right = document.getElementById("paddle_right");
-let score_left = document.getElementById("score-left");
-let score_right = document.getElementById("score-right");
+const gameId = {
+    game_container: document.getElementById("game-container"),
+    game_board: document.getElementById("game-board"),
+    ball: document.getElementById("ball"),
+    paddle_left: document.getElementById("paddle_left"),
+    paddle_right: document.getElementById("paddle_right"),
+    score_left: document.getElementById("score-left"),
+    score_right: document.getElementById("score-right")
+}
 
-console.log(game_container, game_board, ball, paddle_left, paddle_right, score_left, score_right);
+console.log(gameId.game_container);
+
 
 //variable globale avec valeur default const
 const gameHeight:number = 400;
@@ -53,5 +56,10 @@ let gameState: GameState = {
     scoreLeft: 0
 }
 
-function pressInput(): void
+document.addEventListener("keydown", event => {
+    if (event.key.startsWith("s")){
+        console.log("fsdfsd")
+        console.log(gameId.paddle_left)
+    }
+})
 
