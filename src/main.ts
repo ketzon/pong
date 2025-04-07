@@ -1,22 +1,21 @@
 const gameId = {
-    game_container: document.getElementById("game-container"),
-    game_board: document.getElementById("game-board"),
+    gameContainer: document.getElementById("game-container"),
+    gameBoard: document.getElementById("game-board"),
     ball: document.getElementById("ball"),
-    paddle_left: document.getElementById("paddle_left"),
-    paddle_right: document.getElementById("paddle_right"),
-    score_left: document.getElementById("score-left"),
-    score_right: document.getElementById("score-right")
+    paddleLeft: document.getElementById("paddle-left"),
+    paddleRight: document.getElementById("paddle-right"),
+    scoreLeft: document.getElementById("score-left"),
+    scoreRight: document.getElementById("score-right")
 }
-
-console.log(gameId.game_container);
 
 
 //variable globale avec valeur default const
 const gameHeight:number = 400;
-const gameWidth:number = 800;
-const ballSize:number = 20;
-const paddleHeight:number = 160;
-const paddleWidht:number = 10;
+// const gameWidth:number = 800;
+// const ballSize:number = 40;
+const paddleHeight:number = 80;
+// const paddleWidth:number = 10;
+const paddleSpeed:number = 8;
 
 type GameState = {
     ballX:number;
@@ -32,16 +31,16 @@ type GameState = {
 type Keys = {
     w:boolean;
     s:boolean;
-    arrowUp:boolean;
-    arrowDown:boolean;
+    ArrowUp:boolean;
+    ArrowDown:boolean;
 }
 
 //setup tout sur false
 let keys: Keys = {
     w: false,
     s: false,
-    arrowUp: false,
-    arrowDown: false
+    ArrowUp: false,
+    ArrowDown: false
 }
 
 //init les valeurs avec pong de base
@@ -56,10 +55,54 @@ let gameState: GameState = {
     scoreLeft: 0
 }
 
-document.addEventListener("keydown", event => {
-    if (event.key.startsWith("s")){
-        console.log("fsdfsd")
-        console.log(gameId.paddle_left)
-    }
-})
+//analyse un event clavier et check avec in si la bonne touch est press
+function setupKeyPress(): void {
+    window.addEventListener("keydown", (event) => {
+        console.log("listen key: ", event.key);
+        if (event.key in keys) {
+            keys[event.key as keyof Keys] = true; //keyof pas necessaire si init direct keys en const a la place de type
+        }
+    })
+    window.addEventListener("keyup", (event) => {
+        if (event.key in keys) { 
+            keys[event.key as keyof Keys] = false;
+        }
+    })
+}
 
+//reduit les valeur de paddle si je monte et augmente pour descendre pour ensuite maligner visuellement avec top, plus le chiffre est faible plus je suis haut et inversement
+function updatePaddles(): void {
+  if (keys.w && gameState.paddleLeftY > 0) {
+    gameState.paddleLeftY -= paddleSpeed;
+  }
+  if (keys.s && gameState.paddleLeftY < gameHeight - paddleHeight) {
+    gameState.paddleLeftY += paddleSpeed;
+  }
+
+  
+  if (keys.ArrowUp && gameState.paddleRightY > 0) {
+    gameState.paddleRightY -= paddleSpeed;
+  }
+  if (keys.ArrowDown && gameState.paddleRightY < gameHeight - paddleHeight) {
+    gameState.paddleRightY += paddleSpeed;
+  }
+
+  //recup id apres modification
+  gameId.paddleLeft = document.getElementById('paddle-left');
+  gameId.paddleRight = document.getElementById('paddle-right');
+  
+  if (gameId.paddleLeft) {
+    gameId.paddleLeft.style.top = `${gameState.paddleLeftY}px`;
+  }
+  if (gameId.paddleRight) {
+    gameId.paddleRight.style.top = `${gameState.paddleRightY}px`;
+  }
+}
+
+function gameLoop(): void {
+  updatePaddles();
+  setupKeyPress();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
