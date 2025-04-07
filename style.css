@@ -1,0 +1,26 @@
+#ball {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    left: 390px;
+    top: 190px;
+}
+
+.paddle {
+    position: absolute;
+    width: 12px;
+    height: 80px;
+    background-color: white;
+}
+
+#paddle-left {
+    left: 10px;
+    top: 160px;
+}
+
+#paddle-right {
+    right: 10px;
+    top: 160px;
+}

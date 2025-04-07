@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Pong</title>
+  <link href="./style.css" ref="stylesheet">
   <script src="https://cdn.tailwindcss.com"> </script>
-  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/main.ts" defer></script>
 </head>
 <body class="bg-gray-900 flex justify-center items-center min-h-screen">
   <div id="game-container" class="relative">
-    <div id="game-board" class="bg-black relative w-[800px] h-[400px] border border-gray-600">
-      <div id="ball"></div>
+    <div id="game-board" class="bg-black relative w-[800px] h-[400px] border border-grey-600">
+      <div id="ball" class="absolute" w-[20px] h-[20px] bg-white rounded-lg left-300 top-190></div>
       <div id="paddle-left" class="paddle"></div>
       <div id="paddle-right" class="paddle"></div>
     </div>
     <div class="flex justify-around text-white mt-2">
-      <div id="score-left">0</div>
+      <div id="score-left">2</div>
       <div id="score-right">0</div>
     </div>
   </div>
