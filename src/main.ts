@@ -10,9 +10,9 @@ const gameId = {
 
 
 //variable globale avec valeur default const
-const gameHeight:number = 400;
-// const gameWidth:number = 800;
-// const ballSize:number = 40;
+const gameHeight:number = 400; //valeur de base
+// const gameWidth:number = 800; //valeur de base
+// const ballSize:number = 40; //valeur de base 20
 const paddleHeight:number = 80;
 // const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
@@ -28,6 +28,7 @@ type GameState = {
     scoreLeft:number;
 }
 
+//inutile a supprimer
 type Keys = {
     w:boolean;
     s:boolean;
@@ -72,37 +73,33 @@ function setupKeyPress(): void {
 
 //reduit les valeur de paddle si je monte et augmente pour descendre pour ensuite maligner visuellement avec top, plus le chiffre est faible plus je suis haut et inversement
 function updatePaddles(): void {
-  if (keys.w && gameState.paddleLeftY > 0) {
-    gameState.paddleLeftY -= paddleSpeed;
-  }
-  if (keys.s && gameState.paddleLeftY < gameHeight - paddleHeight) {
-    gameState.paddleLeftY += paddleSpeed;
-  }
+    if (keys.w && gameState.paddleLeftY > 0) {
+        gameState.paddleLeftY -= paddleSpeed;
+    }
+    if (keys.s && gameState.paddleLeftY < gameHeight - paddleHeight) {
+        gameState.paddleLeftY += paddleSpeed;
+    }
+    if (keys.ArrowUp && gameState.paddleRightY > 0) {
+        gameState.paddleRightY -= paddleSpeed;
+    }
+    if (keys.ArrowDown && gameState.paddleRightY < gameHeight - paddleHeight) {
+        gameState.paddleRightY += paddleSpeed;
+    }
+    //recup id apres modification
+    gameId.paddleLeft = document.getElementById('paddle-left');
+    gameId.paddleRight = document.getElementById('paddle-right');
 
-  
-  if (keys.ArrowUp && gameState.paddleRightY > 0) {
-    gameState.paddleRightY -= paddleSpeed;
-  }
-  if (keys.ArrowDown && gameState.paddleRightY < gameHeight - paddleHeight) {
-    gameState.paddleRightY += paddleSpeed;
-  }
-
-  //recup id apres modification
-  gameId.paddleLeft = document.getElementById('paddle-left');
-  gameId.paddleRight = document.getElementById('paddle-right');
-  
-  if (gameId.paddleLeft) {
-    gameId.paddleLeft.style.top = `${gameState.paddleLeftY}px`;
-  }
-  if (gameId.paddleRight) {
-    gameId.paddleRight.style.top = `${gameState.paddleRightY}px`;
-  }
+    if (gameId.paddleLeft) {
+        gameId.paddleLeft.style.top = `${gameState.paddleLeftY}px`;
+    }
+    if (gameId.paddleRight) {
+        gameId.paddleRight.style.top = `${gameState.paddleRightY}px`;
+    }
 }
 
 function gameLoop(): void {
-  updatePaddles();
-  setupKeyPress();
-  requestAnimationFrame(gameLoop);
+    updatePaddles();
+    setupKeyPress();
+    requestAnimationFrame(gameLoop);
 }
-
 gameLoop();
