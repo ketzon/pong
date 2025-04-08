@@ -11,10 +11,10 @@ const gameId = {
 
 //variable globale avec valeur default const
 const gameHeight:number = 400; //valeur de base
-// const gameWidth:number = 800; //valeur de base
-// const ballSize:number = 40; //valeur de base 20
+const gameWidth:number = 800; //valeur de base
+const ballSize:number = 20; //valeur de base 20
 const paddleHeight:number = 80;
-// const paddleWidth:number = 10;
+const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
 
 type GameState = {
@@ -46,8 +46,8 @@ let keys: Keys = {
 
 //init les valeurs avec pong de base
 let gameState: GameState = {
-    ballX:  390,
-    ballY: 190,
+    ballX:  390, //la moitie de la balle = 10 et moitie de laxe x = 400. 400 -10 = 390
+    ballY: 190, // moitie de la balle - axe y (400 / 2) = 190
     ballSpeedX: 5,
     ballSpeedY:  2,
     paddleLeftY: 160,
@@ -97,9 +97,24 @@ function updatePaddles(): void {
     }
 }
 
+
+function updateBall(): void {
+    gameState.ballY += gameState.ballSpeedY;
+    gameState.ballX += gameState.ballSpeedX;
+    if (gameState.ballY <= 0 || gameState.ballY <= gameHeight - ballSize){
+        gameState.ballSpeedY = -gameState.ballSpeedY;
+    }
+    gameId.ball = document.getElementById('ball');
+    if (gameId.ball){
+        gameId.ball.style.top = `${gameState.ballY}px`;
+        gameId.ball.style.left = `${gameState.ballX}px`;
+    }
+}
+
 function gameLoop(): void {
     updatePaddles();
     setupKeyPress();
+    updateBall();
     requestAnimationFrame(gameLoop);
 }
 gameLoop();
