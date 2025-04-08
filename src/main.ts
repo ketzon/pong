@@ -5,7 +5,8 @@ const gameId = {
     paddleLeft: document.getElementById("paddle-left"),
     paddleRight: document.getElementById("paddle-right"),
     scoreLeft: document.getElementById("score-left"),
-    scoreRight: document.getElementById("score-right")
+    scoreRight: document.getElementById("score-right"),
+    pauseGame: document.getElementById("button-pause")
 }
 
 
@@ -16,6 +17,9 @@ const ballSize:number = 20; //valeur de base 20
 const paddleHeight:number = 80;
 const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
+
+//game status variable
+let pause:boolean = true;
 
 type GameState = {
     ballX:number;
@@ -85,10 +89,6 @@ function updatePaddles(): void {
     if (keys.ArrowDown && gameState.paddleRightY < gameHeight - paddleHeight) {
         gameState.paddleRightY += paddleSpeed;
     }
-    //recup id apres modification
-    gameId.paddleLeft = document.getElementById('paddle-left');
-    gameId.paddleRight = document.getElementById('paddle-right');
-
     if (gameId.paddleLeft) {
         gameId.paddleLeft.style.top = `${gameState.paddleLeftY}px`;
     }
@@ -99,22 +99,42 @@ function updatePaddles(): void {
 
 
 function updateBall(): void {
-    gameState.ballY += gameState.ballSpeedY;
     gameState.ballX += gameState.ballSpeedX;
-    if (gameState.ballY <= 0 || gameState.ballY <= gameHeight - ballSize){
+    gameState.ballY += gameState.ballSpeedY;
+    if (gameState.ballY <= 0 || gameState.ballY >= gameHeight - ballSize){
         gameState.ballSpeedY = -gameState.ballSpeedY;
     }
-    gameId.ball = document.getElementById('ball');
+    //collision en x uniquement sur raquette
+    if (gameState.ballX <= 0 || gameState.ballX >= gameWidth - ballSize) {
+        gameState.ballSpeedX = -gameState.ballSpeedX;
+    }
     if (gameId.ball){
-        gameId.ball.style.top = `${gameState.ballY}px`;
         gameId.ball.style.left = `${gameState.ballX}px`;
+        gameId.ball.style.top = `${gameState.ballY}px`;
     }
 }
 
+function changeStatus(): void{
+    pause = !pause; //change de true a false et inversement
+    if (pause === true) {
+        gameId.pauseGame.textContent = "start";
+    }
+    else {
+        gameId.pauseGame.textContent = "pause";
+    }
+}
+
+function listenStatus(): void {
+    gameId.pauseGame.addEventListener("click", changeStatus);
+}
+
 function gameLoop(): void {
-    updatePaddles();
-    setupKeyPress();
-    updateBall();
+    if (pause === false) {
+        updatePaddles()
+        setupKeyPress();
+        updateBall();
+    }
+    listenStatus();
     requestAnimationFrame(gameLoop);
 }
 gameLoop();
