@@ -6,7 +6,8 @@ const gameId = {
     paddleRight: document.getElementById("paddle-right"),
     scoreLeft: document.getElementById("score-left"),
     scoreRight: document.getElementById("score-right"),
-    pauseGame: document.getElementById("button-pause")
+    pauseGame: document.getElementById("button-pause"),
+    resetGame: document.getElementById("button-reset")
 }
 
 
@@ -33,7 +34,6 @@ type GameState = {
     scoreLeft:number;
 }
 
-//inutile a supprimer
 type Keys = {
     w:boolean;
     s:boolean;
@@ -98,7 +98,11 @@ function updatePaddles(): void {
     }
 }
 
+//recentre la balle avec un delais init le score et renvoie la balle 
 function resetBall():void {
+    //remet la balle au centre sans ms
+    gameState.ballSpeedX = 0;
+    gameState.ballSpeedY = 0;
     gameState.ballX = gameWidth / 2 - ballSize / 2;
     gameState.ballY = gameHeight / 2 - ballSize / 2;
     if (gameId.scoreRight) {
@@ -107,6 +111,12 @@ function resetBall():void {
     if (gameId.scoreLeft) {
         gameId.scoreLeft.textContent = `${gameState.scoreLeft}`;
     }
+    //envoie la balle en position random positif ou negatif faut opti 
+    //pause de 1 sec pour pas trop enchainer
+    setTimeout(() => {
+        gameState.ballSpeedX = 5 * (Math.random() > 0.5 ? 1 : -1);
+        gameState.ballSpeedY = 2 * (Math.random() > 0.5 ? 1 : -1);
+    }, 1000)
 }
 
 
@@ -118,15 +128,17 @@ function updateBall(): void {
     }
     //je bounce uniquement a hauteur de paddle && en bas du haut du paddle et au dessus du bas du paddle gauche
     if (gameState.ballX <= margin + paddleWidth &&
-       gameState.ballY + ballSize >= gameState.paddleLeftY &&
-       gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
+        gameState.ballY + ballSize >= gameState.paddleLeftY &&
+        gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
         gameState.ballSpeedX = -gameState.ballSpeedX;
+        gameState.ballX = margin + paddleWidth + 1; //decale de 1pixel pour eviter paddle block
     }
     //bounce a distante de margin + paddle et uniquement sur paddle droite
     if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
-       gameState.ballY + ballSize >= gameState.paddleRightY &&
-       gameState.ballY <= gameState.paddleRightY + paddleHeight) {
+        gameState.ballY + ballSize >= gameState.paddleRightY &&
+        gameState.ballY <= gameState.paddleRightY + paddleHeight) {
         gameState.ballSpeedX = -gameState.ballSpeedX;
+        gameState.ballX = gameWidth - margin - paddleWidth - ballSize - 1; //decale de 1 pixel pour eviter bug paddle block
     }
     if (gameId.ball){
         gameId.ball.style.left = `${gameState.ballX}px`;
@@ -143,7 +155,8 @@ function updateBall(): void {
     }
 }
 
-function changeStatus(): void{
+//change le status de pause
+function changePause(): void{
     pause = !pause; //change de true a false et inversement
     if (gameId.pauseGame) {
         if (pause === true) {
@@ -155,19 +168,33 @@ function changeStatus(): void{
     }
 }
 
+//reset le jeu
+function resetGame(): void {
+    gameState.scoreRight = 0
+    gameState.scoreLeft = 0
+    gameState.paddleRightY = 160;
+    gameState.paddleLeftY = 160;
+    resetBall();
+}
+
+//ecoute bouton
 function listenStatus(): void {
     if (gameId.pauseGame) {
-        gameId.pauseGame.addEventListener("click", changeStatus);
+        gameId.pauseGame.addEventListener("click", changePause);
+    }
+    if (gameId.resetGame) {
+        gameId.resetGame.addEventListener("click", resetGame)
     }
 }
 
+//main loop
 function gameLoop(): void {
     if (pause === false) {
         updatePaddles()
-        setupKeyPress();
         updateBall();
     }
     listenStatus();
     requestAnimationFrame(gameLoop);
 }
+setupKeyPress();
 gameLoop();
