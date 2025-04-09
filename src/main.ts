@@ -1,3 +1,6 @@
+import confetti from "canvas-confetti";
+
+//---------------------MAIN-GAME-------------------------------//
 const gameId = {
     gameContainer: document.getElementById("game-container"),
     gameBoard: document.getElementById("game-board"),
@@ -9,6 +12,11 @@ const gameId = {
     pauseGame: document.getElementById("button-pause"),
     resetGame: document.getElementById("button-reset")
 }
+
+
+//sounds
+const paddleSound = new Audio("../sounds/bubble-pop.mp3");
+const victorySound = new Audio("../sounds/victory.mp3");
 
 
 //variable globale avec valeur default const
@@ -111,7 +119,7 @@ function resetBall():void {
     if (gameId.scoreLeft) {
         gameId.scoreLeft.textContent = `${gameState.scoreLeft}`;
     }
-    //envoie la balle en position random positif ou negatif faut opti 
+    //envoie la balle en position random positif ou negatif (opti plus de combi)
     //pause de 1 sec pour pas trop enchainer
     setTimeout(() => {
         gameState.ballSpeedX = 5 * (Math.random() > 0.5 ? 1 : -1);
@@ -132,6 +140,7 @@ function updateBall(): void {
         gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = margin + paddleWidth + 1; //decale de 1pixel pour eviter paddle block
+        paddleSound.play();
     }
     //bounce a distante de margin + paddle et uniquement sur paddle droite
     if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
@@ -139,6 +148,7 @@ function updateBall(): void {
         gameState.ballY <= gameState.paddleRightY + paddleHeight) {
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = gameWidth - margin - paddleWidth - ballSize - 1; //decale de 1 pixel pour eviter bug paddle block
+        paddleSound.play();
     }
     if (gameId.ball){
         gameId.ball.style.left = `${gameState.ballX}px`;
@@ -183,9 +193,23 @@ function listenStatus(): void {
         gameId.pauseGame.addEventListener("click", changePause);
     }
     if (gameId.resetGame) {
+        console.log("hello world");
         gameId.resetGame.addEventListener("click", resetGame)
     }
 }
+
+function checkWinner(): void {
+    const  winScore = 1;
+    if (gameState.scoreLeft >= winScore ||
+       gameState.scoreRight >= winScore) {
+        confetti();
+        resetGame();
+        pause = true;
+        victorySound.play();
+    }
+}
+
+//-----------------------MAIN-GAME------------------------------//
 
 //main loop
 function gameLoop(): void {
@@ -193,6 +217,7 @@ function gameLoop(): void {
         updatePaddles()
         updateBall();
     }
+    checkWinner();
     listenStatus();
     requestAnimationFrame(gameLoop);
 }
