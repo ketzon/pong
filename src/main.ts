@@ -17,6 +17,7 @@ const ballSize:number = 20; //valeur de base 20
 const paddleHeight:number = 80;
 const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
+const margin:number = 10;
 
 //game status variable
 let pause:boolean = true;
@@ -97,6 +98,17 @@ function updatePaddles(): void {
     }
 }
 
+function resetBall():void {
+    gameState.ballX = gameWidth / 2 - ballSize / 2;
+    gameState.ballY = gameHeight / 2 - ballSize / 2;
+    if (gameId.scoreRight) {
+        gameId.scoreRight.textContent = `${gameState.scoreRight}`;
+    }
+    if (gameId.scoreLeft) {
+        gameId.scoreLeft.textContent = `${gameState.scoreLeft}`;
+    }
+}
+
 
 function updateBall(): void {
     gameState.ballX += gameState.ballSpeedX;
@@ -104,28 +116,49 @@ function updateBall(): void {
     if (gameState.ballY <= 0 || gameState.ballY >= gameHeight - ballSize){
         gameState.ballSpeedY = -gameState.ballSpeedY;
     }
-    //collision en x uniquement sur raquette
-    if (gameState.ballX <= 0 || gameState.ballX >= gameWidth - ballSize) {
+    //je bounce uniquement a hauteur de paddle && en bas du haut du paddle et au dessus du bas du paddle gauche
+    if (gameState.ballX <= margin + paddleWidth &&
+       gameState.ballY + ballSize >= gameState.paddleLeftY &&
+       gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
+        gameState.ballSpeedX = -gameState.ballSpeedX;
+    }
+    //bounce a distante de margin + paddle et uniquement sur paddle droite
+    if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
+       gameState.ballY + ballSize >= gameState.paddleRightY &&
+       gameState.ballY <= gameState.paddleRightY + paddleHeight) {
         gameState.ballSpeedX = -gameState.ballSpeedX;
     }
     if (gameId.ball){
         gameId.ball.style.left = `${gameState.ballX}px`;
         gameId.ball.style.top = `${gameState.ballY}px`;
     }
+    if (gameState.ballX < 0) {
+
+        gameState.scoreRight++;        
+        resetBall();
+    }
+    if (gameState.ballX + ballSize > gameWidth){
+        gameState.scoreLeft++;
+        resetBall();
+    }
 }
 
 function changeStatus(): void{
     pause = !pause; //change de true a false et inversement
-    if (pause === true) {
-        gameId.pauseGame.textContent = "start";
-    }
-    else {
-        gameId.pauseGame.textContent = "pause";
+    if (gameId.pauseGame) {
+        if (pause === true) {
+         gameId.pauseGame.textContent = "start";
+        }
+        else {
+         gameId.pauseGame.textContent = "pause";
+        }
     }
 }
 
 function listenStatus(): void {
-    gameId.pauseGame.addEventListener("click", changeStatus);
+    if (gameId.pauseGame) {
+        gameId.pauseGame.addEventListener("click", changeStatus);
+    }
 }
 
 function gameLoop(): void {
