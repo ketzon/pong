@@ -10,7 +10,8 @@ const gameId = {
     scoreLeft: document.getElementById("score-left"),
     scoreRight: document.getElementById("score-right"),
     pauseGame: document.getElementById("button-pause"),
-    resetGame: document.getElementById("button-reset")
+    resetGame: document.getElementById("button-reset"),
+    winnerMsg: document.getElementById("winner-message")
 }
 
 
@@ -27,9 +28,11 @@ const paddleHeight:number = 80;
 const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
 const margin:number = 10;
+const winScore:number = 2;
 
 //game status variable
 let pause:boolean = true;
+let isResetting:boolean = false; //pour ne pas overlap sur une loop pendant un reset
 
 type GameState = {
     ballX:number;
@@ -108,6 +111,8 @@ function updatePaddles(): void {
 
 //recentre la balle avec un delais init le score et renvoie la balle 
 function resetBall():void {
+    if (isResetting) return ;
+    isResetting = true; //pour eviter datarace sur le mouvement de la balle
     //remet la balle au centre sans ms
     gameState.ballSpeedX = 0;
     gameState.ballSpeedY = 0;
@@ -124,6 +129,7 @@ function resetBall():void {
     setTimeout(() => {
         gameState.ballSpeedX = 5 * (Math.random() > 0.5 ? 1 : -1);
         gameState.ballSpeedY = 2 * (Math.random() > 0.5 ? 1 : -1);
+        isResetting = false;
     }, 1000)
 }
 
@@ -198,27 +204,43 @@ function listenStatus(): void {
     }
 }
 
-function checkWinner(): void {
-    const  winScore = 1;
-    if (gameState.scoreLeft >= winScore ||
-       gameState.scoreRight >= winScore) {
-        confetti();
+function changeWinnerMsg(winnerName:string) : void {
+    if (gameId.winnerMsg) {
+        if (winnerName) {
+         setTimeout(() => {
+            gameId.winnerMsg.textContent = `Reach ${winScore} point(s) to claim victory!🏆`;
+         }, 3000);
+        gameId.winnerMsg.textContent = `Victory goes to ${winnerName}! 👑🥳`;
+        }
         resetGame();
+    }
+}
+
+function checkWinner(): void {
+    if (gameState.scoreLeft >= winScore) {
+        confetti();
         pause = true;
         victorySound.play();
+        changeWinnerMsg("player1");
+    } else if (gameState.scoreRight >= winScore) {
+        confetti();
+        pause = true;
+        victorySound.play();
+        changeWinnerMsg("player2");
     }
 }
 
 //-----------------------MAIN-GAME------------------------------//
+gameId.winnerMsg.textContent = `Reach ${winScore} point(s) to claim victory!🏆`;
 
 //main loop
+listenStatus();
 function gameLoop(): void {
     if (pause === false) {
         updatePaddles()
         updateBall();
     }
     checkWinner();
-    listenStatus();
     requestAnimationFrame(gameLoop);
 }
 setupKeyPress();
