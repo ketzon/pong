@@ -109,6 +109,22 @@ function updatePaddles(): void {
     }
 }
 
+function resetPaddles():void {
+    if (gameId.paddleLeft) {
+        gameId.paddleLeft.style.top = `${160}px`;
+    }
+    if (gameId.paddleRight) {
+        gameId.paddleRight.style.top = `${160}px`;
+    }
+}
+
+function resetScore():void {
+    if (gameId.scoreLeft || gameId.scoreLeft) {
+        gameId.scoreLeft.textContent = '0';
+        gameId.scoreRight.textContent = '0';
+    }
+}
+
 //recentre la balle avec un delais init le score et renvoie la balle 
 function resetBall():void {
     if (isResetting) return ;
@@ -123,6 +139,10 @@ function resetBall():void {
     }
     if (gameId.scoreLeft) {
         gameId.scoreLeft.textContent = `${gameState.scoreLeft}`;
+    }
+    if (gameId.ball){
+        gameId.ball.style.left = `${gameState.ballX}px`;
+        gameId.ball.style.top = `${gameState.ballY}px`;
     }
     //envoie la balle en position random positif ou negatif (opti plus de combi)
     //pause de 1 sec pour pas trop enchainer
@@ -191,6 +211,8 @@ function resetGame(): void {
     gameState.paddleRightY = 160;
     gameState.paddleLeftY = 160;
     resetBall();
+    resetPaddles();
+    resetScore();
 }
 
 //ecoute bouton
@@ -211,8 +233,9 @@ function changeWinnerMsg(winnerName:string) : void {
             gameId.winnerMsg.textContent = `Reach ${winScore} point(s) to claim victory!🏆`;
          }, 3000);
         gameId.winnerMsg.textContent = `Victory goes to ${winnerName}! 👑🥳`;
-        }
         resetGame();
+        gameId.pauseGame.textContent = "start";
+        }
     }
 }
 
