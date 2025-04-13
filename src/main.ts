@@ -2,16 +2,17 @@ import confetti from "canvas-confetti";
 
 //---------------------MAIN-GAME-------------------------------//
 const gameId = {
-    gameContainer: document.getElementById("game-container"),
-    gameBoard: document.getElementById("game-board"),
-    ball: document.getElementById("ball"),
-    paddleLeft: document.getElementById("paddle-left"),
-    paddleRight: document.getElementById("paddle-right"),
-    scoreLeft: document.getElementById("score-left"),
-    scoreRight: document.getElementById("score-right"),
-    pauseGame: document.getElementById("button-pause"),
-    resetGame: document.getElementById("button-reset"),
-    winnerMsg: document.getElementById("winner-message")
+    gameContainer: document.getElementById("game-container")as HTMLElement,
+    gameBoard: document.getElementById("game-board")as HTMLElement,
+    ball: document.getElementById("ball")as HTMLElement,
+    paddleLeft: document.getElementById("paddle-left")as HTMLElement,
+    paddleRight: document.getElementById("paddle-right")as HTMLElement,
+    scoreLeft: document.getElementById("score-left")as HTMLElement,
+    scoreRight: document.getElementById("score-right")as HTMLElement,
+    pauseGame: document.getElementById("button-pause") as HTMLElement,
+    resetGame: document.getElementById("button-reset")as HTMLElement,
+    winnerMsg: document.getElementById("winner-message") as HTMLElement,
+    ballColor: document.getElementById("button-ball") as HTMLElement
 }
 
 
@@ -28,7 +29,7 @@ const paddleHeight:number = 80;
 const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
 const margin:number = 10;
-const winScore:number = 2;
+const winScore:number = 5;
 
 //game status variable
 let pause:boolean = true;
@@ -182,10 +183,16 @@ function updateBall(): void {
     }
     if (gameState.ballX < 0) {
 
+        if (gameId.ball.style.backgroundColor === "blue") { //double point on blue ball
+            gameState.scoreRight++;        
+        }
         gameState.scoreRight++;        
         resetBall();
     }
     if (gameState.ballX + ballSize > gameWidth){
+        if (gameId.ball.style.backgroundColor === "blue") { //double point on blue ball
+            gameState.scoreLeft++;        
+        }
         gameState.scoreLeft++;
         resetBall();
     }
@@ -215,14 +222,25 @@ function resetGame(): void {
     resetScore();
 }
 
+function changeBall(): void {
+  if (gameId.ball) {
+    const colors:string = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"];
+    const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
+    console.log(randomColor);
+    gameId.ball.style.backgroundColor = randomColor;
+  }
+}
+
 //ecoute bouton
 function listenStatus(): void {
     if (gameId.pauseGame) {
         gameId.pauseGame.addEventListener("click", changePause);
     }
     if (gameId.resetGame) {
-        console.log("hello world");
         gameId.resetGame.addEventListener("click", resetGame)
+    }
+    if (gameId.ballColor) {
+        gameId.ballColor.addEventListener("click", changeBall)
     }
 }
 
