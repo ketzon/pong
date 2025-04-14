@@ -12,7 +12,8 @@ const gameId = {
     pauseGame: document.getElementById("button-pause") as HTMLElement,
     resetGame: document.getElementById("button-reset")as HTMLElement,
     winnerMsg: document.getElementById("winner-message") as HTMLElement,
-    ballColor: document.getElementById("button-ball") as HTMLElement
+    ballColor: document.getElementById("button-ball") as HTMLElement,
+    basicButton: document.getElementById("button-basic") as HTMLElement,
 }
 
 
@@ -32,6 +33,7 @@ const margin:number = 10;
 const winScore:number = 5;
 
 //game status variable
+let isBasic:boolean = true;
 let pause:boolean = true;
 let isResetting:boolean = false; //pour ne pas overlap sur une loop pendant un reset
 
@@ -154,6 +156,23 @@ function resetBall():void {
     }, 1000)
 }
 
+function applyColorEffect(leftOrRight:string): void {
+    if (isBasic === true) {
+     let colors:string = gameId.ball.style.backgroundColor;
+     if (colors === "blue") {
+        if (leftOrRight === "left") {
+             gameState.scoreLeft++;
+        } 
+        else if (leftOrRight === "right") {
+            gameState.scoreRight++;
+        }
+     }
+     if (colors === "red") {
+    
+      }
+    }
+}
+
 
 function updateBall(): void {
     gameState.ballX += gameState.ballSpeedX;
@@ -182,17 +201,12 @@ function updateBall(): void {
         gameId.ball.style.top = `${gameState.ballY}px`;
     }
     if (gameState.ballX < 0) {
-
-        if (gameId.ball.style.backgroundColor === "blue") { //double point on blue ball
-            gameState.scoreRight++;        
-        }
+        applyColorEffect("right");
         gameState.scoreRight++;        
         resetBall();
     }
     if (gameState.ballX + ballSize > gameWidth){
-        if (gameId.ball.style.backgroundColor === "blue") { //double point on blue ball
-            gameState.scoreLeft++;        
-        }
+        applyColorEffect("left");
         gameState.scoreLeft++;
         resetBall();
     }
@@ -223,12 +237,24 @@ function resetGame(): void {
 }
 
 function changeBall(): void {
-  if (gameId.ball) {
+  if (!isBasic) {
     const colors:string = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"];
     const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
     console.log(randomColor);
     gameId.ball.style.backgroundColor = randomColor;
   }
+}
+
+function setBasicMode():void {
+    console.log("check-mode-switch")
+    if (isBasic === false) {
+       isBasic = true;
+        gameId.basicButton.textContent = "features-mode";
+    }
+    else {
+       isBasic = false;
+        gameId.basicButton.textContent = "default-mode";
+    }
 }
 
 //ecoute bouton
@@ -241,6 +267,9 @@ function listenStatus(): void {
     }
     if (gameId.ballColor) {
         gameId.ballColor.addEventListener("click", changeBall)
+    }
+    if (gameId.basicButton) {
+        gameId.basicButton.addEventListener("click", setBasicMode)
     }
 }
 
