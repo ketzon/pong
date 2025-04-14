@@ -20,6 +20,7 @@ const gameId = {
 //sounds
 const paddleSound = new Audio("../sounds/bubble-pop.mp3");
 const victorySound = new Audio("../sounds/victory.mp3");
+const featuresMode = new Audio("../sounds/features-mode-robot.mpga");
 
 
 //variable globale avec valeur default const
@@ -157,7 +158,7 @@ function resetBall():void {
 }
 
 function applyColorEffect(leftOrRight:string): void {
-    if (isBasic === true) {
+    if (isBasic === false) {
      let colors:string = gameId.ball.style.backgroundColor;
      if (colors === "blue") {
         if (leftOrRight === "left") {
@@ -168,7 +169,13 @@ function applyColorEffect(leftOrRight:string): void {
         }
      }
      if (colors === "red") {
-    
+         console.log("speed red ball check")
+        if (leftOrRight === "left") {
+            gameState.ballSpeedX = -10; 
+        }
+        if (leftOrRight === "right") {
+            gameState.ballSpeedX = 10; 
+        }
       }
     }
 }
@@ -184,6 +191,7 @@ function updateBall(): void {
     if (gameState.ballX <= margin + paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleLeftY &&
         gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
+        applyColorEffect("left");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = margin + paddleWidth + 1; //decale de 1pixel pour eviter paddle block
         paddleSound.play();
@@ -192,6 +200,7 @@ function updateBall(): void {
     if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleRightY &&
         gameState.ballY <= gameState.paddleRightY + paddleHeight) {
+        applyColorEffect("right");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = gameWidth - margin - paddleWidth - ballSize - 1; //decale de 1 pixel pour eviter bug paddle block
         paddleSound.play();
@@ -238,7 +247,7 @@ function resetGame(): void {
 
 function changeBall(): void {
   if (!isBasic) {
-    const colors:string = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"];
+    const colors:string = ["red", "blue", "green", "yellow"];
     const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
     console.log(randomColor);
     gameId.ball.style.backgroundColor = randomColor;
@@ -253,6 +262,7 @@ function setBasicMode():void {
     }
     else {
        isBasic = false;
+       featuresMode.play();
         gameId.basicButton.textContent = "default-mode";
     }
 }
