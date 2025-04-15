@@ -21,7 +21,8 @@ const gameId = {
 const paddleSound = new Audio("../sounds/bubble-pop.mp3");
 const victorySound = new Audio("../sounds/victory.mp3");
 const featuresMode = new Audio("../sounds/features-mode-robot.mpga");
-
+const defaultMode = new Audio("../sounds/default_mode_robot.mpga");
+const smashSound = new Audio ("../sounds/explo.mp3");
 
 //variable globale avec valeur default const
 const gameHeight:number = 400; //valeur de base
@@ -157,9 +158,9 @@ function resetBall():void {
     }, 1000)
 }
 
-function applyColorEffect(leftOrRight:string): void {
+function applyColorEffect(leftOrRight:string): string {
     if (isBasic === false) {
-     let colors:string = gameId.ball.style.backgroundColor;
+    let colors:string = gameId.ball.style.backgroundColor;
      if (colors === "blue") {
         if (leftOrRight === "left") {
              gameState.scoreLeft++;
@@ -177,11 +178,23 @@ function applyColorEffect(leftOrRight:string): void {
             gameState.ballSpeedX = 10; 
         }
       }
+      return colors;
+    }
+    return "default";
+}
+
+function applySoundEffect(colors:string):void {
+    if (colors === "red") {
+        smashSound.play();
+    }
+    else {
+        paddleSound.play();
     }
 }
 
 
 function updateBall(): void {
+    let ballColors:string = gameId.ball.style.backgroundColor;
     gameState.ballX += gameState.ballSpeedX;
     gameState.ballY += gameState.ballSpeedY;
     if (gameState.ballY <= 0 || gameState.ballY >= gameHeight - ballSize){
@@ -191,19 +204,19 @@ function updateBall(): void {
     if (gameState.ballX <= margin + paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleLeftY &&
         gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
-        applyColorEffect("left");
+        ballColors = applyColorEffect("left");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = margin + paddleWidth + 1; //decale de 1pixel pour eviter paddle block
-        paddleSound.play();
+        applySoundEffect(ballColors);
     }
     //bounce a distante de margin + paddle et uniquement sur paddle droite
     if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleRightY &&
         gameState.ballY <= gameState.paddleRightY + paddleHeight) {
-        applyColorEffect("right");
+        ballColors = applyColorEffect("right");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = gameWidth - margin - paddleWidth - ballSize - 1; //decale de 1 pixel pour eviter bug paddle block
-        paddleSound.play();
+        applySoundEffect(ballColors);
     }
     if (gameId.ball){
         gameId.ball.style.left = `${gameState.ballX}px`;
@@ -247,7 +260,7 @@ function resetGame(): void {
 
 function changeBall(): void {
   if (!isBasic) {
-    const colors:string = ["red", "blue", "green", "yellow"];
+    const colors:string = ["red", "blue"];
     const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
     console.log(randomColor);
     gameId.ball.style.backgroundColor = randomColor;
@@ -258,7 +271,8 @@ function setBasicMode():void {
     console.log("check-mode-switch")
     if (isBasic === false) {
        isBasic = true;
-        gameId.basicButton.textContent = "features-mode";
+       defaultMode.play();
+       gameId.basicButton.textContent = "features-mode";
     }
     else {
        isBasic = false;
