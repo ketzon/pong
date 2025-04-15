@@ -19,16 +19,31 @@ const gameId = {
 
 
 //sounds
-// const paddleSound = new Audio("../sounds/bubble-pop.mp3");
-// const victorySound = new Audio("../sounds/victory.mp3");
-const featuresMode = new Audio("../sounds/features-mode-robot.mpga");
-const defaultMode = new Audio("../sounds/default_mode_robot.mpga");
-// const smashSound = new Audio ("../sounds/explo.mp3");
+const smashBall = new Howl({
+    src: ["../sounds/sonic-boom.mp3"],
+    volume: 0.5
+});
+
+const whiteBall = new Howl({
+    src: ["../sounds/gated-drop.mp3"],
+    volume: 0.5
+});
+
+const featuresMode = new Howl({
+    src: ["../sounds/features-mode-robot.mp3"],
+    volume: 0.5
+});
+
+const defaultMode = new Howl({
+    src: ["../sounds/default_mode_robot.mp3"],
+    volume: 0.5
+});
 
 const victorySound = new Howl({
     src: ["../sounds/victory.mp3"],
-    volume: 0.6
-})
+    volume: 0.4
+});
+
 const paddleSound = new Howl({
     src: ["../sounds/bubble-pop.mp3"],
     volume: 0.6
@@ -37,6 +52,11 @@ const paddleSound = new Howl({
 const smashSound = new Howl({
     src: ["../sounds/explo.mp3"],
     volume: 1.0
+});
+
+const doublePoints = new Howl({
+    src: ["../sounds/doublexp_zombie.mp3"],
+    volume: 0.1
 });
 
 
@@ -189,14 +209,14 @@ function applyColorEffect(leftOrRight:string, status:string): string {
      if (colors === "red" && status === "bounce") {
          console.log("speed red ball check")
         if (leftOrRight === "left") {
-            gameState.ballSpeedX = -10; 
+            gameState.ballSpeedX = -14; 
             gameId.paddleLeft.style.backgroundColor = "yellow";
             setTimeout(() => {
                 gameId.paddleLeft.style.backgroundColor = originalColor;
             }, 100)
         }
         if (leftOrRight === "right") {
-            gameState.ballSpeedX = 10; 
+            gameState.ballSpeedX = 14; 
             gameId.paddleRight.style.backgroundColor = "yellow";
             setTimeout(() => {
                 gameId.paddleRight.style.backgroundColor = originalColor;
@@ -285,10 +305,19 @@ function resetGame(): void {
 
 function changeBall(): void {
   if (!isBasic) {
-    const colors:string = ["red", "blue"];
+    const colors:string = ["red", "blue", "white"];
     const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
     console.log(randomColor);
     gameId.ball.style.backgroundColor = randomColor;
+    if (randomColor === "blue") {
+        doublePoints.play();
+    }
+    if (randomColor === "red") {
+        smashBall.play();
+    }
+    if (randomColor === "white") {
+        whiteBall.play();
+    }
   }
 }
 
