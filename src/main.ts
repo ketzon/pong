@@ -1,4 +1,5 @@
 import confetti from "canvas-confetti";
+import  { Howl }  from "howler";
 
 //---------------------MAIN-GAME-------------------------------//
 const gameId = {
@@ -18,11 +19,26 @@ const gameId = {
 
 
 //sounds
-const paddleSound = new Audio("../sounds/bubble-pop.mp3");
-const victorySound = new Audio("../sounds/victory.mp3");
+// const paddleSound = new Audio("../sounds/bubble-pop.mp3");
+// const victorySound = new Audio("../sounds/victory.mp3");
 const featuresMode = new Audio("../sounds/features-mode-robot.mpga");
 const defaultMode = new Audio("../sounds/default_mode_robot.mpga");
-const smashSound = new Audio ("../sounds/explo.mp3");
+// const smashSound = new Audio ("../sounds/explo.mp3");
+
+const victorySound = new Howl({
+    src: ["../sounds/victory.mp3"],
+    volume: 0.6
+})
+const paddleSound = new Howl({
+    src: ["../sounds/bubble-pop.mp3"],
+    volume: 0.6
+});
+
+const smashSound = new Howl({
+    src: ["../sounds/explo.mp3"],
+    volume: 1.0
+});
+
 
 //variable globale avec valeur default const
 const gameHeight:number = 400; //valeur de base
@@ -158,10 +174,11 @@ function resetBall():void {
     }, 1000)
 }
 
-function applyColorEffect(leftOrRight:string): string {
+function applyColorEffect(leftOrRight:string, status:string): string {
     if (isBasic === false) {
+    const originalColor = "white";
     let colors:string = gameId.ball.style.backgroundColor;
-     if (colors === "blue") {
+     if (colors === "blue" && status === "score") {
         if (leftOrRight === "left") {
              gameState.scoreLeft++;
         } 
@@ -169,13 +186,21 @@ function applyColorEffect(leftOrRight:string): string {
             gameState.scoreRight++;
         }
      }
-     if (colors === "red") {
+     if (colors === "red" && status === "bounce") {
          console.log("speed red ball check")
         if (leftOrRight === "left") {
             gameState.ballSpeedX = -10; 
+            gameId.paddleLeft.style.backgroundColor = "yellow";
+            setTimeout(() => {
+                gameId.paddleLeft.style.backgroundColor = originalColor;
+            }, 100)
         }
         if (leftOrRight === "right") {
             gameState.ballSpeedX = 10; 
+            gameId.paddleRight.style.backgroundColor = "yellow";
+            setTimeout(() => {
+                gameId.paddleRight.style.backgroundColor = originalColor;
+            }, 100)
         }
       }
       return colors;
@@ -204,7 +229,7 @@ function updateBall(): void {
     if (gameState.ballX <= margin + paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleLeftY &&
         gameState.ballY <= gameState.paddleLeftY + paddleHeight) { //pour rebondir a gauche
-        ballColors = applyColorEffect("left");
+        ballColors = applyColorEffect("left", "bounce");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = margin + paddleWidth + 1; //decale de 1pixel pour eviter paddle block
         applySoundEffect(ballColors);
@@ -213,7 +238,7 @@ function updateBall(): void {
     if (gameState.ballX + ballSize >= gameWidth - margin - paddleWidth &&
         gameState.ballY + ballSize >= gameState.paddleRightY &&
         gameState.ballY <= gameState.paddleRightY + paddleHeight) {
-        ballColors = applyColorEffect("right");
+        ballColors = applyColorEffect("right", "bounce");
         gameState.ballSpeedX = -gameState.ballSpeedX;
         gameState.ballX = gameWidth - margin - paddleWidth - ballSize - 1; //decale de 1 pixel pour eviter bug paddle block
         applySoundEffect(ballColors);
@@ -223,12 +248,12 @@ function updateBall(): void {
         gameId.ball.style.top = `${gameState.ballY}px`;
     }
     if (gameState.ballX < 0) {
-        applyColorEffect("right");
+        applyColorEffect("right", "score");
         gameState.scoreRight++;        
         resetBall();
     }
     if (gameState.ballX + ballSize > gameWidth){
-        applyColorEffect("left");
+        applyColorEffect("left", "score");
         gameState.scoreLeft++;
         resetBall();
     }
