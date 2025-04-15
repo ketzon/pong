@@ -18,7 +18,7 @@ const gameId = {
 }
 
 
-//sounds
+//sounds with howler.js
 const smashBall = new Howl({
     src: ["../sounds/sonic-boom.mp3"],
     volume: 0.5
@@ -305,17 +305,26 @@ function resetGame(): void {
 
 function changeBall(): void {
   if (!isBasic) {
+    const temp:string = gameId.ball.style.backgroundColor;
     const colors:string = ["red", "blue", "white"];
     const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
     console.log(randomColor);
     gameId.ball.style.backgroundColor = randomColor;
     if (randomColor === "blue") {
+        if (temp === "red") {
+           gameState.ballSpeedX = 5; 
+           gameState.ballSpeedY = 2; 
+        }
         doublePoints.play();
     }
     if (randomColor === "red") {
         smashBall.play();
     }
     if (randomColor === "white") {
+        if (temp === "red") {
+           gameState.ballSpeedX = 5; 
+           gameState.ballSpeedY = 2; 
+        }
         whiteBall.play();
     }
   }
@@ -377,6 +386,15 @@ function checkWinner(): void {
         changeWinnerMsg("player2");
     }
 }
+function autoChangeColor(): void {
+    if (pause === false) {
+        const delay = Math.floor(Math.random() * 10000) + 10000; // 10s a 20s
+        setTimeout(() => {
+         changeBall();
+         autoChangeColor();
+        }, delay);
+    }
+}
 
 //-----------------------MAIN-GAME------------------------------//
 gameId.winnerMsg.textContent = `Reach ${winScore} point(s) to claim victory!🏆`;
@@ -393,3 +411,4 @@ function gameLoop(): void {
 }
 setupKeyPress();
 gameLoop();
+autoChangeColor();
