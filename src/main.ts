@@ -74,6 +74,7 @@ const winScore:number = 5;
 let isBasic:boolean = true;
 let pause:boolean = true;
 let isResetting:boolean = false; //pour ne pas overlap sur une loop pendant un reset
+let colorChangeTimer:number | undefined; // id de setTimeout pour le cancel avec clearTimeout
 
 type GameState = {
     ballX:number;
@@ -285,9 +286,12 @@ function changePause(): void{
     if (gameId.pauseGame) {
         if (pause === true) {
          gameId.pauseGame.textContent = "start";
+         clearTimeout(colorChangeTimer);
+         colorChangeTimer = undefined;
         }
-        else {
+        if (pause === false) {
          gameId.pauseGame.textContent = "pause";
+         autoChangeColor();
         }
     }
 }
@@ -336,6 +340,7 @@ function setBasicMode():void {
        isBasic = true;
        defaultMode.play();
        gameId.basicButton.textContent = "features-mode";
+       gameId.ball.style.backgroundColor = "white";
     }
     else {
        isBasic = false;
@@ -386,14 +391,17 @@ function checkWinner(): void {
         changeWinnerMsg("player2");
     }
 }
+
 function autoChangeColor(): void {
+    if (pause)return; 
+
+    const delay = Math.floor(Math.random() * 10000) + 10000; // 10s a 20s
+    colorChangeTimer = window.setTimeout(() => {
     if (pause === false) {
-        const delay = Math.floor(Math.random() * 10000) + 10000; // 10s a 20s
-        setTimeout(() => {
-         changeBall();
-         autoChangeColor();
-        }, delay);
-    }
+        changeBall();
+        autoChangeColor();
+         }
+    }, delay);
 }
 
 //-----------------------MAIN-GAME------------------------------//
@@ -411,4 +419,3 @@ function gameLoop(): void {
 }
 setupKeyPress();
 gameLoop();
-autoChangeColor();
