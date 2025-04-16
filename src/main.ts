@@ -209,15 +209,16 @@ function applyColorEffect(leftOrRight:string, status:string): string {
      }
      if (colors === "red" && status === "bounce") {
          console.log("speed red ball check")
+         const dirX = Math.sign(gameState.ballSpeedX || 1);
+         const boostedSpeed = 14 * dirX;
+         gameState.ballSpeedX = boostedSpeed;
         if (leftOrRight === "left") {
-            gameState.ballSpeedX = -14; 
             gameId.paddleLeft.style.backgroundColor = "yellow";
             setTimeout(() => {
                 gameId.paddleLeft.style.backgroundColor = originalColor;
             }, 100)
         }
         if (leftOrRight === "right") {
-            gameState.ballSpeedX = 14; 
             gameId.paddleRight.style.backgroundColor = "yellow";
             setTimeout(() => {
                 gameId.paddleRight.style.backgroundColor = originalColor;
@@ -306,7 +307,18 @@ function resetGame(): void {
     resetPaddles();
     resetScore();
 }
-
+function resetBallSpeed(newSpeedX: number, newSpeedY: number): void {
+    let dirX = Math.sign(gameState.ballSpeedX);
+    let dirY = Math.sign(gameState.ballSpeedY);
+    if (dirX === 0) {
+        dirX = 1;
+    }
+    if (dirY === 0) {
+        dirY = 1;
+    }
+    gameState.ballSpeedX = newSpeedX * dirX;
+    gameState.ballSpeedY = newSpeedY * dirY;
+}
 function changeBall(): void {
   if (!isBasic) {
     const temp:string = gameId.ball.style.backgroundColor;
@@ -316,8 +328,7 @@ function changeBall(): void {
     gameId.ball.style.backgroundColor = randomColor;
     if (randomColor === "blue") {
         if (temp === "red") {
-           gameState.ballSpeedX = 5; 
-           gameState.ballSpeedY = 2; 
+            resetBallSpeed(5,2);
         }
         doublePoints.play();
     }
@@ -326,8 +337,7 @@ function changeBall(): void {
     }
     if (randomColor === "white") {
         if (temp === "red") {
-           gameState.ballSpeedX = 5; 
-           gameState.ballSpeedY = 2; 
+            resetBallSpeed(5,2);
         }
         whiteBall.play();
     }
@@ -395,7 +405,7 @@ function checkWinner(): void {
 function autoChangeColor(): void {
     if (pause)return; 
 
-    const delay = Math.floor(Math.random() * 10000) + 10000; // 10s a 20s
+    const delay = Math.floor(Math.random() * 5000) + 5000; // 5s a 10s
     colorChangeTimer = window.setTimeout(() => {
     if (pause === false) {
         changeBall();
