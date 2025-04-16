@@ -68,7 +68,7 @@ const paddleHeight:number = 80;
 const paddleWidth:number = 10;
 const paddleSpeed:number = 8;
 const margin:number = 10;
-const winScore:number = 5;
+const winScore:number = 10005;
 
 //game status variable
 let isBasic:boolean = true;
@@ -307,42 +307,43 @@ function resetGame(): void {
     resetPaddles();
     resetScore();
 }
-function resetBallSpeed(newSpeedX: number, newSpeedY: number): void {
-    let dirX = Math.sign(gameState.ballSpeedX);
-    let dirY = Math.sign(gameState.ballSpeedY);
-    if (dirX === 0) {
-        dirX = 1;
-    }
-    if (dirY === 0) {
-        dirY = 1;
-    }
-    gameState.ballSpeedX = newSpeedX * dirX;
-    gameState.ballSpeedY = newSpeedY * dirY;
-}
+
 function changeBall(): void {
   if (!isBasic) {
     const temp:string = gameId.ball.style.backgroundColor;
-    const colors:string = ["red", "blue", "white"];
-    const randomColor:string = colors[Math.floor(Math.random() * colors.length)]; //math floor pour arrondir, random pour generer un nombre, aleatoirement dans mon array
-    console.log(randomColor);
+    const colors:string[] = ["red", "blue", "white"];
+    let randomColor:string = colors[Math.floor(Math.random() * colors.length)];
+    console.log(`ma couleur avant le rand: ${temp}`);
+    console.log(`ma couleur random: ${randomColor}`);
+    while (randomColor === temp) {
+        randomColor = colors[Math.floor(Math.random() * colors.length)];
+    }
+    console.log(`ma couleur apres la boucle while: ${randomColor}`);
+    if (temp === "red" && randomColor !== "red") {
+      const dirX:number = Math.sign(gameState.ballSpeedX) || 1;
+      const dirY:number = Math.sign(gameState.ballSpeedY) || 1;
+      const currentRatio:number = Math.abs(gameState.ballSpeedY / gameState.ballSpeedX);
+      if (randomColor === "blue") {
+        gameState.ballSpeedX = 6 * dirX;
+        gameState.ballSpeedY = 6 * currentRatio * dirY;
+      } else if (randomColor === "white") {
+        gameState.ballSpeedX = 5 * dirX;
+        gameState.ballSpeedY = 5 * currentRatio * dirY;
+      }
+    }
     gameId.ball.style.backgroundColor = randomColor;
     if (randomColor === "blue") {
-        if (temp === "red") {
-            resetBallSpeed(5,2);
-        }
-        doublePoints.play();
+      doublePoints.play();
     }
-    if (randomColor === "red") {
-        smashBall.play();
+    else if (randomColor === "red") {
+      smashBall.play();
     }
-    if (randomColor === "white") {
-        if (temp === "red") {
-            resetBallSpeed(5,2);
-        }
-        whiteBall.play();
+    else if (randomColor === "white") {
+      whiteBall.play();
     }
   }
 }
+
 
 function setBasicMode():void {
     console.log("check-mode-switch")
